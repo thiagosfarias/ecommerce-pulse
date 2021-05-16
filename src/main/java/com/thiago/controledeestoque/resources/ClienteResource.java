@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/clientes")
@@ -22,13 +23,38 @@ public class ClienteResource {
     }
     @GetMapping(value = "/{id}")
     public ResponseEntity<Cliente> findById(@PathVariable Long id){
-        Cliente obj = service.findById(id);
-        return ResponseEntity.ok().body(obj);
+        return Optional
+                .ofNullable( service.findById(id) )
+                .map( client -> ResponseEntity.ok().body(client) )
+                .orElseGet( () -> ResponseEntity.notFound().build() );
     }
 
     @PostMapping("/new")
     public ResponseEntity<Cliente> insert(@RequestBody Cliente obj){
         obj = service.insert(obj);
         return ResponseEntity.ok().body(obj);
+    }
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<Cliente> update(@RequestBody Cliente obj, @PathVariable Long id){
+        Optional<Cliente> oldCliente = Optional.ofNullable(service.findById(id));
+
+        if(oldCliente.isPresent()){
+
+            Cliente cliente = oldCliente.get();
+
+            cliente.setNome(obj.getNome());
+            cliente.setnDocumento(obj.getnDocumento());
+            cliente.setTelefone(obj.getTelefone());
+            cliente.setDataNascimento(obj.getDataNascimento());
+            cliente.setDataNascimento(obj.getDataNascimento());
+
+            service.update(cliente);
+
+            return ResponseEntity.ok().body(cliente);
+        }
+
+        return ResponseEntity.notFound().build();
+
     }
 }

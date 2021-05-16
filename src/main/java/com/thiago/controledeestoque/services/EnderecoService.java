@@ -19,8 +19,7 @@ public class EnderecoService {
     }
 
     public Endereco findById(Long id){
-        Optional<Endereco> obj = repository.findById(id);
-        return obj.get();
+        return Optional.ofNullable( repository.findById(id) ).get().orElseThrow();
     }
 
     public Endereco insert(Endereco obj){

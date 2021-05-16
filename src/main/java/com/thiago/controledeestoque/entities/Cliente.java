@@ -20,6 +20,8 @@ public class Cliente implements Serializable {
     private Long id;
 
     private String nome;
+
+    @Column(unique=true)
     private String nDocumento;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")

@@ -3,12 +3,11 @@ package com.thiago.controledeestoque.entities.enums;
 public enum Pagamentos {
     CREDIT_CARD(1),
     DEBIT_CARD(2),
-    BOLETO(3),
-    PIX(4);
+    BOLETO(3);
 
     private Integer code;
 
-    private Pagamentos(int code){
+    Pagamentos(int code){
         this.code = code;
     }
 

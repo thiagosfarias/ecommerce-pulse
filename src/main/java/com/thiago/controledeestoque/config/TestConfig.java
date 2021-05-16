@@ -1,19 +1,9 @@
 package com.thiago.controledeestoque.config;
 
-import com.thiago.controledeestoque.entities.Carrinho;
-import com.thiago.controledeestoque.entities.Cliente;
-import com.thiago.controledeestoque.entities.Endereco;
-import com.thiago.controledeestoque.entities.Entrega;
-import com.thiago.controledeestoque.entities.Item;
-import com.thiago.controledeestoque.entities.Produto;
-import com.thiago.controledeestoque.entities.Transportadora;
-import com.thiago.controledeestoque.repositories.CarrinhoRepository;
-import com.thiago.controledeestoque.repositories.ClienteRepository;
-import com.thiago.controledeestoque.repositories.EnderecoRepository;
-import com.thiago.controledeestoque.repositories.EntregaRepository;
-import com.thiago.controledeestoque.repositories.ItemRepository;
-import com.thiago.controledeestoque.repositories.ProdutoRepository;
-import com.thiago.controledeestoque.repositories.TransportadoraRepository;
+import com.thiago.controledeestoque.entities.*;
+import com.thiago.controledeestoque.entities.enums.CarrinhoStatus;
+import com.thiago.controledeestoque.entities.enums.Pagamentos;
+import com.thiago.controledeestoque.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +28,10 @@ public class TestConfig implements CommandLineRunner {
     private EntregaRepository entregaRepository;
     @Autowired
     private CarrinhoRepository carrinhoRepository;
+    @Autowired
+    private TipoPagamentoRepository tipoPagamentoRepository;
+    @Autowired
+    private PagamentoRepository pagamentoRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -86,7 +80,7 @@ public class TestConfig implements CommandLineRunner {
 
         entregaRepository.saveAll(Arrays.asList(et1, et2));
 
-        Carrinho ca1 = new Carrinho(null, c1);
+        Carrinho ca1 = new Carrinho(null, c1, CarrinhoStatus.WAITING_PAYMENT);
 
         carrinhoRepository.save(ca1);
 
@@ -96,7 +90,17 @@ public class TestConfig implements CommandLineRunner {
         it2.setCarrinho(ca1);
         ca1.setEntrega(et1);
 
+        TipoPagamento tp1 = new TipoPagamento(null, Pagamentos.BOLETO);
+
+        Pagamento pg1 = new Pagamento(null, ca1, et1, tp1);
+
         itemRepository.saveAll(Arrays.asList(it1,it2));
+        carrinhoRepository.save(ca1);
+        tipoPagamentoRepository.save(tp1);
+        pagamentoRepository.save(pg1);
+
+        ca1.setStatus(CarrinhoStatus.PROCESSING);
+
         carrinhoRepository.save(ca1);
 
     }

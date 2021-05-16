@@ -1,6 +1,6 @@
 package com.thiago.controledeestoque.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiago.controledeestoque.entities.enums.CarrinhoStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -30,12 +30,19 @@ public class Carrinho implements Serializable {
 
     private Instant dataDeCriacao;
 
+    private Integer status;
+
+    @OneToOne
+    @JoinColumn(name = "pagamento_id", referencedColumnName = "id")
+    private Pagamento pagamento;
+
     public Carrinho(){}
 
-    public Carrinho(Long id, Cliente cliente) {
+    public Carrinho(Long id, Cliente cliente, CarrinhoStatus carrinhoStatus) {
         this.id = id;
         this.comprador = cliente;
         this.dataDeCriacao = Instant.now();
+        setStatus(carrinhoStatus);
     }
 
     public Long getId() {
@@ -64,5 +71,29 @@ public class Carrinho implements Serializable {
 
     public Instant getDataDeCriacao() {
         return dataDeCriacao;
+    }
+
+    public CarrinhoStatus getStatus() throws IllegalAccessException {
+        return CarrinhoStatus.valueOf(this.status);
+    }
+
+    public void setStatus(CarrinhoStatus status) {
+        if(status!= null)
+            this.status = status.getCode();
+    }
+
+    public Pagamento getPagamento() {
+        return pagamento;
+    }
+
+    public void setPagamento(Pagamento pagamento) {
+        this.pagamento = pagamento;
+    }
+
+    public Double getSomaValoresItems(){
+        return this.items
+                    .stream()
+                    .map(Item::getValorItem)
+                    .reduce(0.0, Double::sum);
     }
 }
