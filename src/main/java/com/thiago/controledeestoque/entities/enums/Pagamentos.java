@@ -1,15 +1,13 @@
 package com.thiago.controledeestoque.entities.enums;
 
-public enum Status {
-    WAITING_PAYMENT(1),
-    PAID(2),
-    SHIPPED(3),
-    DELIVERED(4),
-    CANCELLED(5);
+public enum Pagamentos {
+    CREDIT_CARD(1),
+    DEBIT_CARD(2),
+    BOLETO(3);
 
     private Integer code;
 
-    private Status(int code){
+    Pagamentos(int code){
         this.code = code;
     }
 
@@ -17,8 +15,8 @@ public enum Status {
         return code;
     }
 
-    public static Status valueOf(int code) throws IllegalAccessException {
-        for(Status value : Status.values()){
+    public static Pagamentos valueOf(int code) throws IllegalAccessException {
+        for(Pagamentos value : Pagamentos.values()){
             if(value.getCode() == code){
                 return value;
             }

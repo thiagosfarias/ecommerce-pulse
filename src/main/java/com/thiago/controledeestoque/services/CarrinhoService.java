@@ -18,8 +18,7 @@ public class CarrinhoService {
     }
 
     public Carrinho findById(Long id){
-        Optional<Carrinho> obj = repository.findById(id);
-        return obj.get();
+        return Optional.ofNullable( repository.findById(id) ).get().orElseThrow();
     }
 
     public Carrinho insert(Carrinho obj){

@@ -18,11 +18,12 @@ public class ClienteService {
     }
 
     public Cliente findById(Long id){
-        Optional<Cliente> obj = repository.findById(id);
-        return obj.get();
+        return Optional.ofNullable( repository.findById(id) ).get().orElseThrow();
     }
 
     public Cliente insert(Cliente obj){
         return repository.save(obj);
     }
+
+    public Cliente update(Cliente obj) { return repository.save(obj); }
 }
