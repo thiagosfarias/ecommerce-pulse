@@ -48,10 +48,9 @@ public class ClienteService {
             oldCliente.get().setDataNascimento(obj.getDataNascimento());
             oldCliente.get().setTelefone(obj.getTelefone());
             oldCliente.get().setHistoricos(obj.getHistoricos());
+            oldCliente.get().setCartoes(obj.getCartoes());
 
-            Cliente newCliente = oldCliente.get();
-
-            return repository.save(newCliente);
+            return repository.save(oldCliente.get());
         }
         return null;
     }

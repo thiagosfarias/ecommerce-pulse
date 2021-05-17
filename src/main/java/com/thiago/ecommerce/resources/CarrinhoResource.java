@@ -1,13 +1,13 @@
 package com.thiago.ecommerce.resources;
 
-import com.thiago.ecommerce.entities.Cliente;
-import com.thiago.ecommerce.entities.TipoPagamento;
+import com.thiago.ecommerce.entities.*;
 import com.thiago.ecommerce.services.CarrinhoService;
-import com.thiago.ecommerce.entities.Carrinho;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,8 +19,9 @@ public class CarrinhoResource {
 
     @GetMapping
     public ResponseEntity<List<Carrinho>> findAll(){
-        List<Carrinho> list =service.findAll();
-        return ResponseEntity.ok().body(list);
+        return Optional.ofNullable(service.findAll())
+                .map(carrinhos -> ResponseEntity.ok().body(carrinhos))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/new/{id}")
@@ -67,9 +68,19 @@ public class CarrinhoResource {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("pagar/{id}")
-    public ResponseEntity<Carrinho> pay(@PathVariable Long id, @RequestBody TipoPagamento tipoPagamento){
-        return Optional.ofNullable(service.pay(id, tipoPagamento))
+    @PatchMapping("pagar/{id}/{tipoPagamento}/{parcelas}/{idCupom}/has")
+    public ResponseEntity<Carrinho> pay(@PathVariable Long id,
+                                        @PathVariable Integer tipoPagamento,
+                                        @PathVariable Long idCupom,
+                                        @RequestParam Boolean cupom,
+                                        @PathVariable Integer parcelas,
+                                        @RequestBody Cartao obj) throws IllegalAccessException {
+        if(cupom)
+            return Optional.ofNullable(service.payWithCupom(id, tipoPagamento, idCupom, parcelas, obj))
+                .map(carrinho -> ResponseEntity.ok().body(carrinho))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+
+        return Optional.ofNullable(service.pay(id, tipoPagamento, parcelas, obj))
                 .map(carrinho -> ResponseEntity.ok().body(carrinho))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

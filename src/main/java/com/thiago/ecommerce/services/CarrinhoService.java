@@ -2,12 +2,14 @@ package com.thiago.ecommerce.services;
 
 import com.thiago.ecommerce.entities.*;
 import com.thiago.ecommerce.entities.enums.CarrinhoStatus;
+import com.thiago.ecommerce.entities.enums.Pagamentos;
 import com.thiago.ecommerce.repositories.CarrinhoRepository;
 import org.aspectj.weaver.patterns.OrTypePattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.sql.Time;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,6 +30,10 @@ public class CarrinhoService {
     private TipoPagamentoService tipoPagamentoService;
     @Autowired
     private ClienteService clienteService;
+    @Autowired
+    private CupomService cupomService;
+    @Autowired
+    private CartaoService cartaoService;
 
     public List<Carrinho> findAll(){
         return repository.findAll();
@@ -125,16 +131,119 @@ public class CarrinhoService {
         return null;
     }
 
-    public Carrinho pay(Long id, TipoPagamento tipoPagamento){
-        Optional<Carrinho> objCarrinho = Optional.ofNullable(repository.findById(id)).get();
-        Optional<TipoPagamento> objTipoPagamento = Optional.ofNullable(tipoPagamentoService.insert(tipoPagamento));
+    public Carrinho payWithCard(Pagamento pagamento,
+                                Cliente cliente,
+                                Cartao obj,
+                                Carrinho objCarrinho,
+                                Cupom cupom,
+                                Integer parcelas){
 
-        if(objCarrinho.isPresent() && objCarrinho.get().getEntrega() != null){
-            objCarrinho.get().setPagamento( Optional.ofNullable( pagamentoService.insert(
-                                            new Pagamento(null,
-                                                            objCarrinho.get(),
-                                                            objCarrinho.get().getEntrega(),
-                                                            objTipoPagamento.get())) ).get());
+        pagamento.setCartao(obj);
+
+        cliente.setCartao(obj);
+
+        obj.setCliente(cliente);
+
+        obj.setPagamento(pagamento);
+
+        pagamento.setCupom(cupom);
+
+        pagamento.divideValor(parcelas);
+
+        objCarrinho.setPagamento((pagamentoService.insert(pagamento)));
+
+        objCarrinho.setStatus(CarrinhoStatus.PROCESSING);
+
+        clienteService.update(cliente, cliente.getId());
+
+        cartaoService.update(obj);
+
+        return repository.save(objCarrinho);
+    }
+
+    public Carrinho payWithCardNoCupom(Pagamento pagamento,
+                                       Cliente cliente,
+                                       Cartao obj,
+                                       Carrinho carrinho,
+                                       Integer parcelas){
+        pagamento.setCartao(obj);
+
+        cliente.setCartao(obj);
+
+        obj.setCliente(cliente);
+
+        obj.setPagamento(pagamento);
+
+        pagamento.divideValor(parcelas);
+
+        carrinho.setPagamento((pagamentoService.insert(pagamento)));
+
+        carrinho.setStatus(CarrinhoStatus.PROCESSING);
+
+        clienteService.update(cliente, cliente.getId());
+
+        cartaoService.update(obj);
+
+        return repository.save(carrinho);
+
+    }
+
+    public Carrinho pay(Long id, Integer tipoPagamento, Integer parcelas, Cartao obj) throws IllegalAccessException {
+        Optional<Carrinho> objCarrinho = Optional.ofNullable(repository.findById(id)).get();
+
+        TipoPagamento tipo = new TipoPagamento(null, Pagamentos.valueOf(tipoPagamento));
+
+        Cliente cliente = clienteService.findById(objCarrinho.get().getComprador().getId());
+
+        if (objCarrinho.isPresent() && objCarrinho.get().getEntrega() != null && cliente != null) {
+            tipoPagamentoService.insert(tipo);
+
+            Pagamento pagamento = new Pagamento(null, objCarrinho.get(), objCarrinho.get().getEntrega(), tipo, false);
+
+            if (tipo.getTipo().getCode() == 1) {
+                obj = cartaoService.novo(obj);
+                return payWithCardNoCupom(pagamento, cliente, obj, objCarrinho.get(), parcelas);
+            }
+
+            objCarrinho.get().setPagamento(pagamento);
+
+            objCarrinho.get().setStatus(CarrinhoStatus.PROCESSING);
+
+            Optional.ofNullable(pagamentoService.insert(pagamento));
+
+            return repository.save(objCarrinho.get());
+
+        }
+
+        return null;
+    }
+
+
+    public Carrinho payWithCupom(Long id, Integer tipoPagamento, Long idCupom, Integer parcelas, Cartao obj) throws IllegalAccessException {
+        Optional<Carrinho> objCarrinho = Optional.ofNullable(repository.findById(id)).get();
+
+        TipoPagamento tipo = new TipoPagamento(null, Pagamentos.valueOf(tipoPagamento));
+
+        Cliente cliente = clienteService.findById(objCarrinho.get().getComprador().getId());
+
+        if(objCarrinho.isPresent() && objCarrinho.get().getEntrega() != null && cliente != null){
+            tipoPagamentoService.insert(tipo);
+
+            Pagamento pagamento = new Pagamento(null, objCarrinho.get(), objCarrinho.get().getEntrega(), tipo, true);
+
+            Cupom cupom = cupomService.findById(idCupom);
+
+            if(cupom == null || cliente == null) return null;
+
+            obj = cartaoService.novo(obj);
+
+            if(tipo.getTipo().getCode() == 1){
+                return payWithCard(pagamento, cliente, obj, objCarrinho.get(), cupom, parcelas);
+            }
+
+            pagamento.setCupom(cupom);
+
+            objCarrinho.get().setPagamento( Optional.ofNullable(pagamentoService.insert(pagamento)).get());
 
             objCarrinho.get().setStatus(CarrinhoStatus.PROCESSING);
 
@@ -152,6 +261,9 @@ public class CarrinhoService {
         }
         return null;
     }
-
-
 }
+
+
+
+
+

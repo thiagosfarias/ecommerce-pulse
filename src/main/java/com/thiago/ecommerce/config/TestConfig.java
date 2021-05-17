@@ -32,6 +32,10 @@ public class TestConfig implements CommandLineRunner {
     private TipoPagamentoRepository tipoPagamentoRepository;
     @Autowired
     private PagamentoRepository pagamentoRepository;
+    @Autowired
+    private CartaoRepository cartaoRepository;
+    @Autowired
+    private CupomRepository cupomRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -86,7 +90,14 @@ public class TestConfig implements CommandLineRunner {
         ca1.setItems(it1);
         ca1.setItems(it2);
 
-        TipoPagamento tp1 = new TipoPagamento(null, Pagamentos.BOLETO);
+        Cartao card1 = new Cartao(null, "13467985245", "THIAGO SOUSA FARIAS", "02676562380", Instant.parse("2027-12-25T20:30:50Z"));
+
+        Cupom cup1 = new Cupom(null, "CUPOM100", 100.00, Instant.parse("2021-12-25T20:30:50Z"));
+
+        cupomRepository.save(cup1);
+        cartaoRepository.save(card1);
+
+        TipoPagamento tp1 = new TipoPagamento(null, Pagamentos.CARTAO);
 
         itemRepository.saveAll(Arrays.asList(it1,it2));
         carrinhoRepository.save(ca1);
