@@ -4,6 +4,7 @@ import com.thiago.ecommerce.entities.Endereco;
 import com.thiago.ecommerce.services.ClienteService;
 import com.thiago.ecommerce.entities.Cliente;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class ClienteResource {
     public ResponseEntity<Cliente> insert(@RequestBody Cliente obj){
         return Optional.ofNullable( service.insert(obj) )
                 .map(cliente -> ResponseEntity.ok().body(cliente))
-                .orElseGet(() -> ResponseEntity.status(400).build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.CREATED).build());
     }
 
     @PutMapping("/edit/{id}")

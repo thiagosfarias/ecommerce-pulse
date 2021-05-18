@@ -33,7 +33,7 @@ public class ClienteService {
                                             .filter(client -> client.getnDocumento().equals(obj.getnDocumento()))
                                             .findFirst();
 
-        if(!cliente.isPresent() && obj.getnDocumento().length() == 11)
+        if(!cliente.isPresent() && obj.getnDocumento().length() >= 11)
             return repository.save(obj);
 
         return null;
