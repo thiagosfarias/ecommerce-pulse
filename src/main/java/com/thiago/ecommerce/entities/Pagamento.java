@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -35,11 +36,23 @@ public class Pagamento {
     @JoinColumn(name = "entrega_id", referencedColumnName = "id")
     private Entrega entrega;
 
+    @OneToOne
+    @JoinColumn(name = "cupom_id")
+    private Cupom cupom;
+
+    private boolean hasCupom;
+
+    @OneToOne
+    @JoinTable(name = "tb_pagamentos_cartoes",
+            joinColumns = @JoinColumn(name="pagamento_id"),
+            inverseJoinColumns = @JoinColumn(name = "cartao_id"))
+    private Cartao cartao;
+
     private boolean isConcluido;
 
     public Pagamento(){}
 
-    public Pagamento(Long id, Carrinho carrinho, Entrega entrega, TipoPagamento tipoPagamento) {
+    public Pagamento(Long id, Carrinho carrinho, Entrega entrega, TipoPagamento tipoPagamento, boolean hasCupom) {
         this.id = id;
         this.dataDePagamento = Instant.now();
         this.carrinho = carrinho;
@@ -48,6 +61,12 @@ public class Pagamento {
         this.tipoPagamento = tipoPagamento;
         this.pagador = carrinho.getComprador();
         this.isConcluido = false;
+        defineCupomReference(hasCupom);
+    }
+
+    public void defineCupomReference(boolean hasCupom){
+        if(hasCupom)
+            this.cupom = new Cupom();
     }
 
     public Long getId() {
@@ -67,8 +86,17 @@ public class Pagamento {
     }
 
     public void setValorTotalDePagamento(Carrinho carrinho, Entrega entrega) {
-        this.valorTotalDePagamento = carrinho.getSomaValoresItems() + entrega.getValor_entrega();
+        if(this.cupom != null && this.cupom.getValidade().isAfter(Instant.now()))
+            this.valorTotalDePagamento = (carrinho.getSomaValoresItems() + entrega.getValor_entrega()) - this.cupom.getDesconto();
+        else {
+            this.valorTotalDePagamento = (carrinho.getSomaValoresItems() + entrega.getValor_entrega());
+        }
     }
+
+    public void divideValor(Integer parcelas){
+        this.valorTotalDePagamento = this.valorTotalDePagamento/parcelas;
+    }
+
 
     public TipoPagamento getTipoPagamento() {
         return tipoPagamento;
@@ -110,6 +138,31 @@ public class Pagamento {
 
     public void setConcluido(boolean concluido) {
         isConcluido = concluido;
+    }
+
+    public Cupom getCupom() {
+        return cupom;
+    }
+
+    public void setCupom(Cupom cupom) {
+        this.cupom = cupom;
+        setValorTotalDePagamento(this.carrinho, this.entrega);
+    }
+
+    public boolean isHasCupom() {
+        return hasCupom;
+    }
+
+    public void setHasCupom(boolean hasCupom) {
+        this.hasCupom = hasCupom;
+    }
+
+    public Cartao getCartao() {
+        return cartao;
+    }
+
+    public void setCartao(Cartao cartao) {
+        this.cartao = cartao;
     }
 
     @Override

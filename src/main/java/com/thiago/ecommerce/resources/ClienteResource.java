@@ -24,6 +24,7 @@ public class ClienteResource {
         List<Cliente> list =service.findAll();
         return ResponseEntity.ok().body(list);
     }
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<Cliente> findById(@PathVariable Long id){
         return Optional

@@ -1,5 +1,6 @@
 package com.thiago.ecommerce.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiago.ecommerce.entities.enums.CarrinhoStatus;
 
 import javax.persistence.*;
@@ -37,6 +38,10 @@ public class Carrinho implements Serializable {
     @JoinColumn(name = "pagamento_id", referencedColumnName = "id")
     private Pagamento pagamento;
 
+    @OneToOne
+    @JoinColumn(name = "cupom_id", referencedColumnName = "id")
+    private Cupom cupom;
+
     public Carrinho(){}
 
     public Carrinho(Long id, Cliente cliente) {
@@ -54,8 +59,12 @@ public class Carrinho implements Serializable {
         return items;
     }
 
-    public void setItems(Item item) {
+    public void setItem(Item item) {
         this.items.add(item);
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 
     public Entrega getEntrega() {
@@ -68,6 +77,10 @@ public class Carrinho implements Serializable {
 
     public Cliente getComprador() {
         return comprador;
+    }
+
+    public void setComprador(Cliente comprador) {
+        this.comprador = comprador;
     }
 
     public Instant getDataDeCriacao() {
@@ -98,4 +111,12 @@ public class Carrinho implements Serializable {
                     .reduce(0.0, Double::sum);
     }
 
+    @JsonIgnore
+    public Cupom getCupom() {
+        return cupom;
+    }
+
+    public void setCupom(Cupom cupom) {
+            this.cupom = cupom;
+    }
 }

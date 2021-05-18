@@ -36,6 +36,9 @@ public class Cliente implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "carrinho_id"))
     private Set<Carrinho> historicos = new HashSet<>();
 
+    @OneToMany(mappedBy = "cliente")
+    private Set<Cartao> cartoes = new HashSet<>();
+
     private String telefone;
 
     public Cliente(){}
@@ -97,10 +100,6 @@ public class Cliente implements Serializable {
         this.enderecos.add(endereco);
     }
 
-    public Endereco getEndereco(Long id) {
-        return this.enderecos.stream().filter(endereco -> endereco.getId() == id).findFirst().get();
-    }
-
     @JsonIgnore
     public Set<Carrinho> getHistoricos() {
         return historicos;
@@ -112,6 +111,19 @@ public class Cliente implements Serializable {
 
     public void setHistoricos(Set<Carrinho> carrinhos){
         this.historicos = carrinhos;
+    }
+
+    @JsonIgnore
+    public Set<Cartao> getCartoes() {
+        return cartoes;
+    }
+
+    public void setCartao(Cartao cartao) {
+        this.cartoes.add(cartao);
+    }
+
+    public void setCartoes(Set<Cartao> cartoes){
+        this.cartoes = cartoes;
     }
 
     @Override
