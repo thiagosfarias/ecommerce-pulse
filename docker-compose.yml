@@ -10,7 +10,9 @@
         - MYSQL_ROOT_PASSWORD=1Aefqsae
         - MYSQL_DATABASE=eccomerce-pulse
       ports:
-      - 3307:3306
+        - 3307:3306
+      volumes:
+      - ./docker/volumes_mysql:/var/lib/mysql
     web-service:
       build:
         context: ./
