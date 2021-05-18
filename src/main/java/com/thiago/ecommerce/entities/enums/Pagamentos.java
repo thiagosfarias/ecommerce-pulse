@@ -1,9 +1,8 @@
 package com.thiago.ecommerce.entities.enums;
 
 public enum Pagamentos {
-    CREDIT_CARD(1),
-    DEBIT_CARD(2),
-    BOLETO(3);
+    CARTAO(1),
+    BOLETO(2);
 
     private Integer code;
 

@@ -45,7 +45,7 @@ public class PagamentoResource {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/byClientId/{id}")
+    @GetMapping("/byClient/{id}")
     public ResponseEntity<List<Pagamento>> byClient(@PathVariable Long id){
         return Optional.ofNullable( service.byClient(id) )
                 .map(pagamentos -> ResponseEntity.ok().body(pagamentos))
