@@ -2,7 +2,7 @@
 
 This application is the Pulse challenge for a dev position.
 
-Summarizing, this is a Java Spring Boot REST API simulating an transparent checkout. 
+Summarizing, this is a Java Spring Boot REST API with MySQL simulating an transparent checkout. 
 
 # Building
 
