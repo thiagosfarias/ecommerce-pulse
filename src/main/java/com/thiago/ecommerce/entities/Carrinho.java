@@ -59,8 +59,12 @@ public class Carrinho implements Serializable {
         return items;
     }
 
-    public void setItems(Item item) {
+    public void setItem(Item item) {
         this.items.add(item);
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 
     public Entrega getEntrega() {
@@ -73,6 +77,10 @@ public class Carrinho implements Serializable {
 
     public Cliente getComprador() {
         return comprador;
+    }
+
+    public void setComprador(Cliente comprador) {
+        this.comprador = comprador;
     }
 
     public Instant getDataDeCriacao() {

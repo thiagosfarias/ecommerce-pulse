@@ -41,6 +41,18 @@ public class Cupom implements Serializable {
         return validade;
     }
 
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public void setDesconto(Double desconto) {
+        this.desconto = desconto;
+    }
+
+    public void setValidade(Instant validade) {
+        this.validade = validade;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

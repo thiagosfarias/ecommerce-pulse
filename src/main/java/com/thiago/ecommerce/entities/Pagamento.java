@@ -149,6 +149,14 @@ public class Pagamento {
         setValorTotalDePagamento(this.carrinho, this.entrega);
     }
 
+    public boolean isHasCupom() {
+        return hasCupom;
+    }
+
+    public void setHasCupom(boolean hasCupom) {
+        this.hasCupom = hasCupom;
+    }
+
     public Cartao getCartao() {
         return cartao;
     }

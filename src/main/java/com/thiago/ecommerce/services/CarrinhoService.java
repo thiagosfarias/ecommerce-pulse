@@ -54,6 +54,8 @@ public class CarrinhoService {
     public Carrinho novoCarrinho(Long id){
         Cliente cliente = clienteService.findById(id);
 
+        if(cliente == null) return null;
+
         Carrinho carrinho = new Carrinho(null, cliente);
 
         cliente.setHistorico(carrinho);
@@ -87,7 +89,7 @@ public class CarrinhoService {
                 Item item = new Item(null, produto.get());
                 item.setQuantidade(quantidade);
                 itemService.insert(item);
-                obj.get().setItems(item);
+                obj.get().setItem(item);
                 return repository.save(obj.get());
             }
 
@@ -111,12 +113,16 @@ public class CarrinhoService {
         return null;
     }
 
-    public void cancel(Long id){
+    public Carrinho cancel(Long id) throws IllegalAccessException {
         Optional<Carrinho> obj = Optional.ofNullable(findById(id));
+        Carrinho limpo = new Carrinho();
 
-        if(obj.isPresent()){
-            repository.delete(obj.get());
-        }
+        obj.get().setStatus(limpo.getStatus());
+        obj.get().setPagamento(limpo.getPagamento());
+        obj.get().setEntrega(limpo.getEntrega());
+        obj.get().setItems(limpo.getItems());
+
+        return update(obj.get());
     }
 
     public Carrinho defineShippment(Long id, Long idEndereco, Long idTrasnportadora){
@@ -191,6 +197,10 @@ public class CarrinhoService {
     public Carrinho pay(Long id, Integer tipoPagamento, Integer parcelas, Cartao obj) throws IllegalAccessException {
         Optional<Carrinho> objCarrinho = Optional.ofNullable(repository.findById(id)).get();
 
+        if(objCarrinho.get().getStatus().getCode() == 4){
+            return null;
+        }
+
         TipoPagamento tipo = new TipoPagamento(null, Pagamentos.valueOf(tipoPagamento));
 
         Cliente cliente = clienteService.findById(objCarrinho.get().getComprador().getId());
@@ -221,6 +231,10 @@ public class CarrinhoService {
 
     public Carrinho payWithCupom(Long id, Integer tipoPagamento, Long idCupom, Integer parcelas, Cartao obj) throws IllegalAccessException {
         Optional<Carrinho> objCarrinho = Optional.ofNullable(repository.findById(id)).get();
+
+        if(objCarrinho.get().getStatus().getCode() == 4){
+            return null;
+        }
 
         TipoPagamento tipo = new TipoPagamento(null, Pagamentos.valueOf(tipoPagamento));
 

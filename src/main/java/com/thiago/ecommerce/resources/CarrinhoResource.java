@@ -85,10 +85,12 @@ public class CarrinhoResource {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/cancel/{id}")
-    public ResponseEntity<Carrinho> cancel(@PathVariable Long id){
-        service.cancel(id);
-        return ResponseEntity.ok().build();
+    @PatchMapping("/cancel/{id}")
+    public ResponseEntity<Carrinho> cancel(@PathVariable Long id) throws IllegalAccessException {
+
+        return Optional.ofNullable( service.cancel(id) )
+                .map(carrinho -> ResponseEntity.ok().body(carrinho))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
